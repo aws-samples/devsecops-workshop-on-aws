@@ -1,0 +1,5 @@
+DBName: TestWordPressDB
+DBPassword: TestDBRootPassword
+DBRootPassword: TestDBRootPassword
+DBUser: TestDBuser
+KeyName: ejanicas

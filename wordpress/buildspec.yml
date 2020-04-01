@@ -1,0 +1,28 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+      ruby: 2.6
+    commands:
+      # Install CFN-Lint, taskcat, YAMLLint
+      - pip3 install cfn-lint taskcat yamllint
+      # Install cfn-nag
+      - gem install cfn-nag
+  build:
+    commands:
+      # Validate Template
+      - aws cloudformation validate-template --template-body file://./wordpress-single-instance.yaml
+      # Run CFN Nag
+      - cfn_nag --output-format txt wordpress-single-instance.yaml -b .cfn-nag-blacklist.yml
+      # Run taskcat, strip color escape codes, output taskcat log files on STDOUT, and exit with result of taskcat
+      - |
+        taskcat test run | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g"
+        TASKCAT_RESULT=${PIPESTATUS[0]}
+        ls -1 taskcat_outputs/*.txt | while read LOG
+        do
+          echo
+          echo "> $LOG"
+          cat ${LOG}
+        done
+        exit $TASKCAT_RESULT

@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  License: Apache-2.0
+Description:
+  "AWS CloudFormation Sample Template Config: This template demonstrates
+  the usage of AWS Config resources. **WARNING** You will be billed for the AWS resources
+  used if you create a stack from this template."
+Resources:
+  ConfigRuleForInstanceMonitoring:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      Scope:
+        ComplianceResourceTypes: ["AWS::EC2::Instance"]
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_INSTANCE_DETAILED_MONITORING_ENABLED
+  BasicRemediationConfiguration:
+    Type: "AWS::Config::RemediationConfiguration"
+    Properties:
+        ConfigRuleName: !Ref ConfigRuleForInstanceMonitoring
+        Parameters:
+          Message:
+            StaticValue:
+              Values: 
+              - test
+          TopicArn:
+            StaticValue:
+              Values: 
+              - arn:aws:sns:eu-west-1:800970383220:My_IoT_SNS_Topic
+        TargetId: "AWS-PublishSNSNotification"
+        TargetType: "SSM_DOCUMENT"
+        TargetVersion: "1"
+Outputs:
+  ConfigRuleForInstanceMonitoringArn:
+    Value: !GetAtt [ConfigRuleForInstanceMonitoring, Arn]
