@@ -44,6 +44,9 @@ Parameters:
     Default: t3.small
     Description: WebServer EC2 instance type
     Type: String
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   KeyName:
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
@@ -56,13 +59,6 @@ Parameters:
     MaxLength: '18'
     MinLength: '9'
     Type: String  
-Mappings:
-  AWSInstanceType2Arch:
-    t3.small:
-      Arch: HVM64
-  AWSRegionArch2AMI:
-    eu-west-1:
-      HVM64: ami-034d940df32c75d15
 Resources:
   WebServer:
     Type: AWS::EC2::Instance
@@ -159,7 +155,8 @@ Resources:
           sources:
             /var/www/html: http://wordpress.org/wordpress-5.1.4.tar.gz
     Properties:
-      ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', !FindInMap [AWSInstanceType2Arch, !Ref InstanceType, Arch]]      
+      ImageId: 
+        !Ref LatestAmiId   
       InstanceType:
         Ref: InstanceType
       KeyName:
