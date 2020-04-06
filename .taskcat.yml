@@ -4,4 +4,4 @@ project:
     - eu-west-1
 tests:
   default:
-    template: wordpress-single-instance.yaml
+    template: wordpress/wordpress-single-instance.yaml
