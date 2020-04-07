@@ -30,10 +30,6 @@ Parameters:
   LatestAmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
     Default: "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
-  KeyName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
-    Default: "{{resolve:ssm:keyName:1}}"
-    Type: AWS::EC2::KeyPair::KeyName
   SSHLocation:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
@@ -141,8 +137,6 @@ Resources:
       ImageId: !Ref LatestAmiId
       InstanceType:
         Ref: InstanceType
-      KeyName:
-        Ref: KeyName
       SecurityGroups:
         - Ref: WebServerSecurityGroup
       Monitoring: true
