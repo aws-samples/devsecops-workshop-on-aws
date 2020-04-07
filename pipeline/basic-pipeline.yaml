@@ -128,7 +128,7 @@ Resources:
                 Category: Test
                 Owner: AWS
                 Provider: CodeBuild
-                Version: '1'
+                Version: "1"
               RunOrder: 1
               Configuration:
                 ProjectName: validate-template
@@ -148,7 +148,6 @@ Resources:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref TestStackName
-                TemplateConfiguration: !Sub "TemplateSource::wordpress/${TestStackConfig}"
                 TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
               RunOrder: "1"
             - Name: ApproveTestStack
@@ -187,7 +186,6 @@ Resources:
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref ProdStackName
                 ChangeSetName: !Ref ChangeSetName
-                TemplateConfiguration: !Sub "TemplateSource::wordpress/${ProdStackConfig}"
                 TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
               RunOrder: "1"
             - Name: ExecuteChangeSet

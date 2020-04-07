@@ -14,22 +14,6 @@ Resources:
       Source:
         Owner: AWS
         SourceIdentifier: EC2_INSTANCE_DETAILED_MONITORING_ENABLED
-  BasicRemediationConfiguration:
-    Type: "AWS::Config::RemediationConfiguration"
-    Properties:
-        ConfigRuleName: !Ref ConfigRuleForInstanceMonitoring
-        Parameters:
-          Message:
-            StaticValue:
-              Values: 
-              - test
-          TopicArn:
-            StaticValue:
-              Values: 
-              - arn:aws:sns:eu-west-1:800970383220:My_IoT_SNS_Topic
-        TargetId: "AWS-PublishSNSNotification"
-        TargetType: "SSM_DOCUMENT"
-        TargetVersion: "1"
 Outputs:
   ConfigRuleForInstanceMonitoringArn:
     Value: !GetAtt [ConfigRuleForInstanceMonitoring, Arn]

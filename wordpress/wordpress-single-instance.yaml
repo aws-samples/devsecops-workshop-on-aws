@@ -1,10 +1,11 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'AWS CloudFormation Sample Template WordPress_Single_Instance: WordPress
+AWSTemplateFormatVersion: "2010-09-09"
+Description:
+  "AWS CloudFormation Sample Template WordPress_Single_Instance: WordPress
   is web software you can use to create a beautiful website or blog. This template
   installs WordPress with a local MySQL database for storage. It demonstrates using
   the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template
   creates an Amazon EC2 instance. You will be billed for the AWS resources used if
-  you create a stack from this template.'
+  you create a stack from this template."
 Parameters:
   DBName:
     Description: The WordPress database name
@@ -27,8 +28,8 @@ Parameters:
     Description: WebServer EC2 instance type
     Type: String
   LatestAmiId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: '/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2'
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
   KeyName:
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
@@ -39,9 +40,9 @@ Parameters:
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
     Default: 0.0.0.0/0
     Description: The IP address range that can be used to SSH to the EC2 instances
-    MaxLength: '18'
-    MinLength: '9'
-    Type: String  
+    MaxLength: "18"
+    MinLength: "9"
+    Type: String
 Resources:
   WebServer:
     Type: AWS::EC2::Instance
@@ -52,9 +53,9 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           wordpress_install:
-          - install_cfn
-          - install_wordpress
-          - configure_wordpress
+            - install_cfn
+            - install_wordpress
+            - configure_wordpress
         configure_wordpress:
           commands:
             01_set_mysql_root_password:
@@ -63,7 +64,7 @@ Resources:
               test: !Sub |
                 $(mysql ${DBName} -u root --password='${DBRootPassword}' >/dev/null 2>&1 </dev/null); (( $? != 0 ))
             02_create_database:
-              command: !Sub |  
+              command: !Sub |
                 mysql -u root --password='${DBRootPassword}' < /tmp/setup.mysql
               test: !Sub |
                 $(mysql ${DBName} -u root --password='${DBRootPassword}' >/dev/null 2>&1 </dev/null); (( $? !=0))
@@ -78,7 +79,7 @@ Resources:
                 stack= ${AWS::StackId}
                 region=${AWS::Region}
               group: root
-              mode: '000400'
+              mode: "000400"
               owner: root
             /etc/cfn/hooks.d/cfn-auto-reloader.conf:
               content: !Sub |
@@ -87,7 +88,7 @@ Resources:
                 path=Resources.WebServer.Metadata.AWS::CloudFormation::Init
                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServer --configsets wordpress_install --url https://stackbuilder.amazonaws.com
               group: root
-              mode: '000400'
+              mode: "000400"
               owner: root
           services:
             sysvinit:
@@ -95,8 +96,8 @@ Resources:
                 enabled: true
                 ensureRunning: true
                 files:
-                - /etc/cfn/cfn-hup.conf
-                - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
         install_wordpress:
           files:
             /tmp/create-wp-config:
@@ -105,9 +106,9 @@ Resources:
                 cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
                 sed -i "s/'database_name_here'/'${DBName}'/g" wp-config.php
                 sed -i "s/'username_here'/'${DBUser}'/g" wp-config.php
-                sed -i "s/'password_here'/'${DBPassword}'/g" wp-config.php                                    
+                sed -i "s/'password_here'/'${DBPassword}'/g" wp-config.php
               group: root
-              mode: '000500'
+              mode: "000500"
               owner: root
             /tmp/setup.mysql:
               content: !Sub |
@@ -116,7 +117,7 @@ Resources:
                 GRANT ALL ON ${DBName}.* TO '${DBUser}'@'localhost'; 
                 FLUSH PRIVILEGES;
               group: root
-              mode: '000400'
+              mode: "000400"
               owner: root
           packages:
             yum:
@@ -138,33 +139,33 @@ Resources:
           sources:
             /var/www/html: http://wordpress.org/wordpress-5.1.4.tar.gz
     Properties:
-      ImageId: 
-        !Ref LatestAmiId   
+      ImageId: !Ref LatestAmiId
       InstanceType:
         Ref: InstanceType
       KeyName:
         Ref: KeyName
       SecurityGroups:
-      - Ref: WebServerSecurityGroup
+        - Ref: WebServerSecurityGroup
+      Monitoring: true
       UserData:
         Fn::Base64: !Sub |
-           #!/bin/bash -xe
-           yum update -y aws-cfn-bootstrap
-           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource WebServer --configsets wordpress_install --region ${AWS::Region}
-           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource WebServer --region ${AWS::Region}
+          #!/bin/bash -xe
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource WebServer --configsets wordpress_install --region ${AWS::Region}
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource WebServer --region ${AWS::Region}
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Enable HTTP access via port 80 locked down to the load balancer + SSH access"
       SecurityGroupIngress:
-      - CidrIp: 0.0.0.0/0
-        FromPort: 80
-        IpProtocol: tcp
-        ToPort: 80
-      - CidrIp: !Ref SSHLocation
-        FromPort: 22
-        IpProtocol: tcp
-        ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: !Ref SSHLocation
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
 Outputs:
   PublicIP:
     Description: EC2 public IP
