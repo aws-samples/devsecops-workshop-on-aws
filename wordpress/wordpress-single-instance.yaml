@@ -31,7 +31,6 @@ Parameters:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
     Default: "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
   KeyName:
-    ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
     Default: "{{resolve:ssm:keyName:1}}"
     Type: AWS::EC2::KeyPair::KeyName
