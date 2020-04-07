@@ -2,3 +2,9 @@
 RulesToSuppress:
 - id: F1000
   reason: F1000 is something we never care about at enterprise X
+- id: W2
+  reason: F1000 is something we never care about at enterprise X
+- id: W9
+  reason: F1000 is something we never care about at enterprise X
+- id: W36
+  reason: F1000 is something we never care about at enterprise X
