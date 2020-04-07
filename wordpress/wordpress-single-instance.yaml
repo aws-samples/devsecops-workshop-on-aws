@@ -7,40 +7,22 @@ Description: 'AWS CloudFormation Sample Template WordPress_Single_Instance: Word
   you create a stack from this template.'
 Parameters:
   DBName:
-    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
     Description: The WordPress database name
-    MaxLength: '64'
-    MinLength: '1'
+    Default: "{{resolve:ssm-secure:dbName:1}}"
     Type: String
   DBPassword:
-    AllowedPattern: '[a-zA-Z0-9]*'
-    ConstraintDescription: must contain only alphanumeric characters.
     Description: The WordPress database admin account password
-    MaxLength: '41'
-    MinLength: '8'
-    NoEcho: 'true'
+    Default: "{{resolve:ssm-secure:dbPassword:1}}"
     Type: String
   DBRootPassword:
-    AllowedPattern: '[a-zA-Z0-9]*'
-    ConstraintDescription: must contain only alphanumeric characters.
     Description: MySQL root password
-    MaxLength: '41'
-    MinLength: '8'
-    NoEcho: 'true'
+    Default: "{{resolve:ssm-secure:dbRootPassword:1}}"
     Type: String
   DBUser:
-    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
     Description: The WordPress database admin account username
-    MaxLength: '16'
-    MinLength: '1'
-    NoEcho: 'true'
+    Default: "{{resolve:ssm-secure:dbUser:1}}"
     Type: String
   InstanceType:
-    AllowedValues:
-    - t3.small
-    ConstraintDescription: must be a valid EC2 instance type.
     Default: t3.small
     Description: WebServer EC2 instance type
     Type: String
@@ -50,6 +32,7 @@ Parameters:
   KeyName:
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Default: "{{resolve:ssm:keyName:1}}"
     Type: AWS::EC2::KeyPair::KeyName
   SSHLocation:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})

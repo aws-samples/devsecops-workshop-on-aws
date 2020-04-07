@@ -104,7 +104,7 @@ Resources:
         Location: !Ref "ArtifactStoreBucket"
         Type: S3
       DisableInboundStageTransitions: []
-      Name: !Ref "PipelineName"
+      Name: !Ref PipelineName
       RoleArn: !GetAtt [PipelineRole, Arn]
       Stages:
         - Name: CodeCommitSource
@@ -148,8 +148,8 @@ Resources:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref TestStackName
-                TemplateConfiguration: !Sub "TemplateSource::${TestStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
+                TemplateConfiguration: !Sub "TemplateSource::wordpress/${TestStackConfig}"
+                TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
               RunOrder: "1"
             - Name: ApproveTestStack
               ActionTypeId:
@@ -187,19 +187,9 @@ Resources:
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref ProdStackName
                 ChangeSetName: !Ref ChangeSetName
-                TemplateConfiguration: !Sub "TemplateSource::${ProdStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
+                TemplateConfiguration: !Sub "TemplateSource::wordpress/${ProdStackConfig}"
+                TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
               RunOrder: "1"
-            - Name: ApproveChangeSet
-              ActionTypeId:
-                Category: Approval
-                Owner: AWS
-                Provider: Manual
-                Version: "1"
-              Configuration:
-                NotificationArn: !Ref CodePipelineSNSTopic
-                CustomData: !Sub "A new change set was created for the ${ProdStackName} stack. Do you want to implement the changes?"
-              RunOrder: "2"
             - Name: ExecuteChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -211,7 +201,7 @@ Resources:
                 ChangeSetName: !Ref ChangeSetName
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref ProdStackName
-              RunOrder: "3"
+              RunOrder: "2"
   CFNRole:
     Type: AWS::IAM::Role
     Properties:
@@ -230,6 +220,7 @@ Resources:
             Statement:
               - Action:
                   - "ec2:*"
+                  - "ssm:GetParameters"
                 Effect: Allow
                 Resource: "*"
 
@@ -264,6 +255,7 @@ Resources:
                   - "cloudformation:SetStackPolicy"
                   - "iam:PassRole"
                   - "sns:Publish"
+                  - "ssm:GetParameters"
                 Effect: Allow
                 Resource: "*"
 
