@@ -1,6 +1,53 @@
 ## DevSecOps on AWS
 
-### Tools and Steps for this Workshop
+### [Building a Pipeline for Test and Production Stacks]()
+This walkthrough builds a pipeline for a sample WordPress site in a stack. The pipeline is separated into four stages. Each stage must contain at least one action, which is a task the pipeline performs on your artifacts (your input). A stage organizes actions in a pipeline. CodePipeline must complete all actions in a stage before the stage processes new artifacts, for example, if you submitted new input to rerun the pipeline.
+
+By the end of this walkthrough, you'll have a pipeline that performs the following workflow:
+
+1. The first stage of the pipeline retrieves a source artifact (an AWS CloudFormation template) from a repository. You'll prepare an artifact that includes a sample WordPress template and upload it to an S3 bucket.
+
+3. In the second stage, the pipeline performs a series of validation tests to the AWS CloudFormation template. These include cfn-validate-template, cfn_nag and taskcat, and then the pipeline continues to the next stage.
+
+3. In the third stage, the pipeline creates a test stack and then waits for your approval.
+After you review the test stack, you can choose to continue with the original pipeline or create and submit another artifact to make changes. If you approve, this stage deletes the test stack, and then the pipeline continues to the next stage.
+
+4. In the fourth stage, the pipeline creates a change set against a production stack, and then waits for your approval.
+In your initial run, you won't have a production stack. The change set shows you all of the resources that AWS CloudFormation will create. If you approve, this stage executes the change set and builds your production stack.
+
+### How to run 
+
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository. From your terminal application, execute the following command:
+
+`git clone https://github.com/aws-samples/aws-devsecops-workshop`
+
+This creates a directory named aws-devsecops-workshop in your current directory.
+
+2. [Create AWS CodeCommit repository](http://docs.aws.amazon.com/codecommit/latest/userguide/getting-started.html#getting-started-create-repo) in your AWS account and [set up AWS CLI](http://docs.aws.amazon.com/codecommit/latest/userguide/how-to-create-repository.html#how-to-create-repository-cli). Name your repository wordpress-cfn. Alternatively, from your terminal application, execute the following command:
+
+`aws codecommit create-repository --repository-name wordpress-cfn --repository-description "This template installs WordPress with a local MySQL database for storage"`
+
+Note the `cloneUrlHttp URL` in the response from the CLI.
+
+3. Add a new remote. From your terminal application, within the wordpress-dfn directory, execute the following command:
+
+`git init && git remote add AWSCodeCommit HTTP_CLONE_URL_FROM_STEP_2`
+
+[Create the local git setup](http://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html) required to push code to CodeCommit repository.
+
+
+4. Initialise the parameters Wordpress fetches from SSM. Example:
+```
+aws ssm put-parameter --name dbName --type String --value "WordPressDB"
+aws secretsmanager create-secret --name dbPassword --secret-string DBPassword
+aws secretsmanager create-secret --name dbRootPassword --secret-string DBRootPassword
+aws ssm put-parameter --name dbUser --type String --value "DBuser"
+```
+
+5. Launch the CFN templates that create the [pipeline](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=devsecops-wordpress-pipeline&templateURL=https://artifact-store-ejanicas.s3-eu-west-1.amazonaws.com/basic-pipeline.yaml) and the [config rules](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=config&templateURL=https://artifact-store-ejanicas.s3-eu-west-1.amazonaws.com/config.yaml).
+
+
+### Tools used in this Workshop
 
 #### 0. [cfn-validate-template](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html)
 The aws cloudformation validate-template command is designed to check only the syntax of your template. It does not ensure that the property values that you have specified for a resource are valid for that resource. Nor does it determine the number of resources that will exist when the stack is created.
@@ -37,23 +84,5 @@ You can use AWS Config as your framework for creating and deploying governance a
 ##### 3.2. [Amazon Inspector](https://aws.amazon.com/inspector/?nc2=h_ql_prod_se_in)
 Amazon Inspector is an API-driven service that analyzes network configurations in your AWS account and uses an optional agent for visibility into your Amazon EC2 instances. This makes it easy for you to build Inspector assessments right into your existing DevOps process, decentralizing and automating vulnerability assessments, and empowering your development and operations teams to make security assessments an integral part of the deployment process.
 
-
-### [Walkthrough: Building a Pipeline for Test and Production Stacks](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-basic-walkthrough.html)
-This walkthrough builds a pipeline for a sample WordPress site in a stack. The pipeline is separated into four stages. Each stage must contain at least one action, which is a task the pipeline performs on your artifacts (your input). A stage organizes actions in a pipeline. CodePipeline must complete all actions in a stage before the stage processes new artifacts, for example, if you submitted new input to rerun the pipeline.
-
-By the end of this walkthrough, you'll have a pipeline that performs the following workflow:
-
-1. The first stage of the pipeline retrieves a source artifact (an AWS CloudFormation template) from a repository. You'll prepare an artifact that includes a sample WordPress template and upload it to an S3 bucket.
-
-3. In the second stage, the pipeline performs a series of validation tests to the AWS CloudFormation template. These include cfn-validate-template, cfn_nag and taskcat, and then the pipeline continues to the next stage.
-
-3. In the third stage, the pipeline creates a test stack and then waits for your approval.
-After you review the test stack, you can choose to continue with the original pipeline or create and submit another artifact to make changes. If you approve, this stage deletes the test stack, and then the pipeline continues to the next stage.
-
-4. In the fourth stage, the pipeline creates a change set against a production stack, and then waits for your approval.
-In your initial run, you won't have a production stack. The change set shows you all of the resources that AWS CloudFormation will create. If you approve, this stage executes the change set and builds your production stack.
-
-
 ## License
 This library is licensed under the MIT-0 License. See the LICENSE file.
-

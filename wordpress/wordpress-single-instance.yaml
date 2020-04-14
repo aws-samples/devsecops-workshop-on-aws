@@ -13,11 +13,11 @@ Parameters:
     Type: String
   DBPassword:
     Description: The WordPress database admin account password
-    Default: "{{resolve:ssm:dbPassword:1}}"
+    Default: "{{resolve:secretsmanager:dbPassword}}"
     Type: String
   DBRootPassword:
     Description: MySQL root password
-    Default: "{{resolve:ssm:dbRootPassword:1}}"
+    Default: "{{resolve:secretsmanager:dbRootPassword}}"
     Type: String
   DBUser:
     Description: The WordPress database admin account username

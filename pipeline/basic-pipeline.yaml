@@ -11,9 +11,11 @@ Description: >
 
 Parameters:
   PipelineName:
+    Default: DevSecOps-Wordpress
     Description: A name for pipeline
     Type: String
   RepositoryName:
+    Default: wordpress-cfn
     Description: The name of the CodeComit repository that contains the source templates, which must be in the same region as this stack
     Type: String
   TemplateFileName:
