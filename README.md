@@ -47,7 +47,17 @@ aws ssm put-parameter --name dbUser --type String --value "DBuser"
 5. Launch the CFN templates that create the [pipeline](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=devsecops-wordpress-pipeline&templateURL=https://artifact-store-ejanicas.s3-eu-west-1.amazonaws.com/basic-pipeline.yaml) and the [config rules](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=config&templateURL=https://artifact-store-ejanicas.s3-eu-west-1.amazonaws.com/config.yaml).
 
 
-### Tools used in this Workshop
+## Tools used in this Workshop
+
+#### Pre. [git-secrets](https://github.com/awslabs/git-secrets)
+`git-secrets` scans commits, commit messages, and `--no-ff` merges to prevent adding secrets into your git repositories. If a commit, commit message, or any commit in a `--no-ff` merge history matches one of your configured prohibited regular expression patterns, then the commit is rejected.
+
+#### Pre. [Secrets Manager](https://aws.amazon.com/secrets-manager/)
+AWS Secrets Manager helps you protect secrets needed to access your applications, services, and IT resources. The service enables you to easily rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. Users and applications retrieve secrets with a call to Secrets Manager APIs, eliminating the need to hardcode sensitive information in plain text. Secrets Manager offers secret rotation with built-in integration for Amazon RDS, Amazon Redshift, and Amazon DocumentDB. Also, the service is extensible to other types of secrets, including API keys and OAuth tokens. In addition, Secrets Manager enables you to control access to secrets using fine-grained permissions and audit secret rotation centrally for resources in the AWS Cloud, third-party services, and on-premises.
+
+#### Pre. [CodeGuru Reviewer](https://aws.amazon.com/codeguru/)
+Amazon CodeGuru is a machine learning service for automated code reviews and application performance recommendations. It helps you find the most expensive lines of code that hurt application performance and keep you up all night troubleshooting, then gives you specific recommendations to fix or improve your code. CodeGuru is powered by machine learning, best practices, and hard-learned lessons across millions of code reviews and thousands of applications profiled on open source projects and internally at Amazon. With CodeGuru, you can find and fix code issues such as resource leaks, potential concurrency race conditions, and wasted CPU cycles. And with low, on-demand pricing, it is inexpensive enough to use for every code review and application you run. CodeGuru supports Java applications today, with support for more languages coming soon. CodeGuru helps you catch problems faster and earlier, so you can build and run better software.
+
 
 #### 0. [cfn-validate-template](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html)
 The aws cloudformation validate-template command is designed to check only the syntax of your template. It does not ensure that the property values that you have specified for a resource are valid for that resource. Nor does it determine the number of resources that will exist when the stack is created.
