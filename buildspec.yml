@@ -14,7 +14,7 @@ phases:
       # Validate Template
       - aws cloudformation validate-template --template-body file://./wordpress/wordpress-single-instance.yaml
       # Run CFN Nag
-      - cfn_nag --output-format txt wordpress/wordpress-single-instance.yaml -b .cfn-nag-blacklist.yml
+      - cfn_nag --output-format txt wordpress/wordpress-single-instance.yaml -b .cfn-nag-blacklist.yml --fail-on-warnings
       # Run taskcat, strip color escape codes, output taskcat log files on STDOUT, and exit with result of taskcat
       - |
         taskcat test run | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g"
