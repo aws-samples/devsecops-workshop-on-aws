@@ -13,18 +13,18 @@ Parameters:
     Type: String
   DBPassword:
     Description: The WordPress database admin account password
-    Default: "{{resolve:secretsmanager:dbPassword}}"
+    Default: "{{resolve:ssm:dbPassword:1}}"
     Type: String
   DBRootPassword:
     Description: MySQL root password
-    Default: "{{resolve:secretsmanager:dbRootPassword}}"
+    Default: "{{resolve:ssm:dbRootPassword:1}}"
     Type: String
   DBUser:
     Description: The WordPress database admin account username
     Default: "{{resolve:ssm:dbUser:1}}"
     Type: String
   InstanceType:
-    Default: t3.small
+    Default: 
     Description: WebServer EC2 instance type
     Type: String
   LatestAmiId:
@@ -131,7 +131,7 @@ Resources:
         Ref: InstanceType
       SecurityGroups:
         - Ref: WebServerSecurityGroup
-      Monitoring: true
+      Monitoring: false
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
@@ -142,11 +142,12 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Enable HTTP access via port 80 locked down to the load balancer + SSH access"
+      VpcId: "default-vpc"
       SecurityGroupIngress:
         - CidrIp: 0.0.0.0/0
-          FromPort: 80
+          FromPort: "0"
           IpProtocol: tcp
-          ToPort: 80
+          ToPort: "1024"
 Outputs:
   PublicIP:
     Description: EC2 public IP
