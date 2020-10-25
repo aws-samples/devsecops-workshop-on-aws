@@ -24,7 +24,7 @@ Parameters:
     Default: "{{resolve:ssm:dbUser:1}}"
     Type: String
   InstanceType:
-    Default: 
+    Default: t3.small
     Description: WebServer EC2 instance type
     Type: String
   LatestAmiId:
