@@ -142,12 +142,11 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Enable HTTP access via port 80 locked down to the load balancer + SSH access"
-      VpcId: "default-vpc"
       SecurityGroupIngress:
         - CidrIp: 0.0.0.0/0
-          FromPort: "0"
+          FromPort: 80
           IpProtocol: tcp
-          ToPort: "1024"
+          ToPort: 80
 Outputs:
   PublicIP:
     Description: EC2 public IP
