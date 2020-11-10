@@ -26,17 +26,9 @@ Parameters:
     Default: Test-MyWordPressSite
     Description: A name for the test WordPress stack
     Type: String
-  TestStackConfig:
-    Default: test-stack-configuration.json
-    Description: The configuration file name for the test WordPress stack
-    Type: String
   ProdStackName:
     Default: Prod-MyWordPressSite
     Description: A name for the production WordPress stack
-    Type: String
-  ProdStackConfig:
-    Default: prod-stack-configuration.json
-    Description: The configuration file name for the production WordPress stack
     Type: String
   ChangeSetName:
     Default: UpdatePreview-MyWordPressSite
@@ -60,13 +52,11 @@ Metadata:
         Parameters:
           - TestStackName
           - TemplateFileName
-          - TestStackConfig
       - Label:
           default: "Production Stack Settings"
         Parameters:
           - ChangeSetName
           - ProdStackName
-          - ProdStackConfig
 
 Resources:
   ArtifactStoreBucket:
@@ -84,7 +74,6 @@ Resources:
 
   Project:
     Type: AWS::CodeBuild::Project
-    DependsOn: CodeBuildRole
     Properties:
       Name: validate-template
       Description: Validate CFN Template
@@ -122,7 +111,7 @@ Resources:
                 BranchName: master
               OutputArtifacts:
                 - Name: TemplateSource
-              RunOrder: "1"
+              RunOrder: 1
         - Name: ValidateTemplate
           Actions:
             - Name: PackageExport
@@ -151,7 +140,7 @@ Resources:
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref TestStackName
                 TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
-              RunOrder: "1"
+              RunOrder: 1
             - Name: ApproveTestStack
               ActionTypeId:
                 Category: Approval
@@ -161,7 +150,7 @@ Resources:
               Configuration:
                 NotificationArn: !Ref CodePipelineSNSTopic
                 CustomData: !Sub "Do you want to create a change set against the production stack and delete the ${TestStackName} stack?"
-              RunOrder: "2"
+              RunOrder: 2
             - Name: DeleteTestStack
               ActionTypeId:
                 Category: Deploy
@@ -172,7 +161,7 @@ Resources:
                 ActionMode: DELETE_ONLY
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref TestStackName
-              RunOrder: "3"
+              RunOrder: 3
         - Name: ProdStage
           Actions:
             - Name: CreateChangeSet
@@ -189,7 +178,7 @@ Resources:
                 StackName: !Ref ProdStackName
                 ChangeSetName: !Ref ChangeSetName
                 TemplatePath: !Sub "TemplateSource::wordpress/${TemplateFileName}"
-              RunOrder: "1"
+              RunOrder: 1
             - Name: ExecuteChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -201,7 +190,7 @@ Resources:
                 ChangeSetName: !Ref ChangeSetName
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref ProdStackName
-              RunOrder: "2"
+              RunOrder: 2
   CFNRole:
     Type: AWS::IAM::Role
     Properties:
