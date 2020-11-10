@@ -271,3 +271,12 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
+
+  ConfigRuleForInstanceMonitoring:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      Scope:
+        ComplianceResourceTypes: ["AWS::EC2::Instance"]
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_INSTANCE_DETAILED_MONITORING_ENABLED
