@@ -261,11 +261,83 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
-  ConfigRuleForInstanceMonitoring:
+  ConfigSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+
+  AWSConfigRule:
     Type: AWS::Config::ConfigRule
     Properties:
+      ConfigRuleName: vpc-default-security-group-closed
+      Description:
+        Checks that the default security group of any Amazon Virtual Private
+        Cloud (VPC) does not allow inbound or outbound traffic. The rule is non-compliant
+        if the default security group has one or more inbound or outbound traffic.
+      InputParameters: {}
       Scope:
-        ComplianceResourceTypes: ["AWS::EC2::Instance"]
+        ComplianceResourceTypes:
+          - AWS::EC2::SecurityGroup
       Source:
         Owner: AWS
-        SourceIdentifier: EC2_INSTANCE_DETAILED_MONITORING_ENABLED
+        SourceIdentifier: VPC_DEFAULT_SECURITY_GROUP_CLOSED
+
+  SSMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ssm.amazonaws.com
+                - ec2.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+      Policies:
+        - PolicyDocument:
+            {
+              "Version": "2012-10-17",
+              "Statement":
+                [
+                  {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": "iam:PassRole",
+                    "Resource": "arn:aws:iam::800970383220:role/AutomationRole",
+                  },
+                ],
+            }
+          PolicyName: PassRole
+
+  ConfigAutoRemediation:
+    DependsOn: AWSConfigRule
+    Type: "AWS::Config::RemediationConfiguration"
+    Properties:
+      Automatic: true
+      ConfigRuleName: vpc-default-security-group-closed
+      ResourceType: "AWS::EC2::SecurityGroup"
+      TargetId: "AWS-PublishSNSNotification"
+      TargetType: "SSM_DOCUMENT"
+      TargetVersion: "1"
+      MaximumAutomaticAttempts: 5
+      RetryAttemptSeconds: 60
+      Parameters:
+        AutomationAssumeRole:
+          StaticValue:
+            Values: 
+              - !GetAtt SSMRole.Arn
+        Message:
+          StaticValue:
+            Values:
+              - "A Config rule is not compliant in your environment. Please open the Config Dashboard for further details."
+        TopicArn:
+          StaticValue:
+            Values:
+              - Ref: ConfigSNSTopic
