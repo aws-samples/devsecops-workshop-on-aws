@@ -269,6 +269,7 @@ Resources:
           Protocol: email
 
   AWSConfigRule:
+    DependsOn: ConfigRecorder
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: vpc-default-security-group-closed
@@ -341,3 +342,47 @@ Resources:
           StaticValue:
             Values:
               - Ref: ConfigSNSTopic
+
+  ConfigRecorder:
+    Type: AWS::Config::ConfigurationRecorder
+    Properties: 
+      RoleARN: !GetAtt ConfigRecorderRole.Arn
+
+  ConfigRecorderRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWS_ConfigRole
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: s3:GetBucketAcl
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'ConfigBucket']]
+          - Effect: Allow
+            Action: s3:PutObject
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'ConfigBucket', /AWSLogs/, !Ref 'AWS::AccountId', /*]]
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+          - Effect: Allow
+            Action: config:Put*
+            Resource: '*'
+     
+  ConfigBucket:
+    Type: AWS::S3::Bucket
+     
+  ConfigDeliveryChannel:
+    Type: AWS::Config::DeliveryChannel
+    Properties: 
+      S3BucketName: !Ref "ConfigBucket"
