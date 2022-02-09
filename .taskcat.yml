@@ -1,7 +1,7 @@
 project:
   name: wordpress-single-instance
   regions:
-    - us-east-1
+    - eu-west-1
 tests:
   default:
     template: wordpress/wordpress-single-instance.yaml
