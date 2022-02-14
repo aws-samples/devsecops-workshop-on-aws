@@ -381,6 +381,9 @@ Resources:
      
   ConfigBucket:
     Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
      
   ConfigDeliveryChannel:
     Type: AWS::Config::DeliveryChannel
