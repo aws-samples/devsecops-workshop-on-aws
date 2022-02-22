@@ -1,7 +1,7 @@
 project:
   name: wordpress-single-instance
   regions:
-    - eu-west-1
+    - <REGION_PLACEHOLDER>
 tests:
   default:
     template: wordpress/wordpress-single-instance.yaml
