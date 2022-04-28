@@ -120,7 +120,7 @@ Resources:
                 Version: "1"
               Configuration:
                 RepositoryName: !Ref "RepositoryName"
-                BranchName: master
+                BranchName: main
               OutputArtifacts:
                 - Name: TemplateSource
               RunOrder: 1
